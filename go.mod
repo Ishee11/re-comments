@@ -2,17 +2,17 @@ module github.com/evrone/go-clean-template
 
 go 1.24
 
-tool (
-	github.com/daixiang0/gci
-	github.com/golang-migrate/migrate/v4/cmd/migrate
-	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
-	github.com/swaggo/swag/cmd/swag
-	go.uber.org/mock/mockgen
-	golang.org/x/vuln/cmd/govulncheck
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc
-	google.golang.org/protobuf/cmd/protoc-gen-go
-	mvdan.cc/gofumpt
-)
+//tool (
+//	github.com/daixiang0/gci
+//	github.com/golang-migrate/migrate/v4/cmd/migrate
+//	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+//	github.com/swaggo/swag/cmd/swag
+//	go.uber.org/mock/mockgen
+//	golang.org/x/vuln/cmd/govulncheck
+//	google.golang.org/grpc/cmd/protoc-gen-go-grpc
+//	google.golang.org/protobuf/cmd/protoc-gen-go
+//	mvdan.cc/gofumpt
+//)
 
 require (
 	github.com/Conight/go-googletrans v0.2.4
