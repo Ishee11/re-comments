@@ -13,6 +13,8 @@ import (
 // CommentRepository определяет методы для работы с комментариями.
 // Этот интерфейс используется UseCase для сохранения, изменения и получения комментариев.
 // Реализация может быть любая: база данных, in-memory, веб-API и т.д.
+//
+//go:generate mockgen -source=../repo/comment.go -destination=../usecase/mock/mock_comment_repo.go -package=mock
 type CommentRepository interface {
 	CreateComment(c *entity.Comment) error
 	UpdateComment(c *entity.Comment) error
