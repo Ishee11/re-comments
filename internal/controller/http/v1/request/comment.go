@@ -7,5 +7,6 @@ type CreateComment struct {
 }
 
 type UpdateComment struct {
-	Text string `json:"text" validate:"required,min=1,max=2000"`
+	UserID int64  `json:"user_id" validate:"required,gt=0"` // нужен чтобы проверить авторство в usecase
+	Text   string `json:"text" validate:"required,min=1,max=2000"`
 }
