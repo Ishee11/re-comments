@@ -9,7 +9,6 @@ import (
 	_ "github.com/evrone/go-clean-template/docs" // Swagger docs.
 	"github.com/evrone/go-clean-template/internal/controller/http/middleware"
 	v1 "github.com/evrone/go-clean-template/internal/controller/http/v1"
-	"github.com/evrone/go-clean-template/internal/usecase"
 	"github.com/evrone/go-clean-template/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -22,7 +21,8 @@ import (
 // @version     1.0
 // @host        localhost:8080
 // @BasePath    /v1
-func NewRouter(app *fiber.App, cfg *config.Config, t usecase.Translation, l logger.Interface) {
+
+func NewRouter(app *fiber.App, cfg *config.Config, uc UseCases, l logger.Interface) {
 	// Options
 	app.Use(middleware.Logger(l))
 	app.Use(middleware.Recovery(l))
@@ -45,6 +45,7 @@ func NewRouter(app *fiber.App, cfg *config.Config, t usecase.Translation, l logg
 	// Routers
 	apiV1Group := app.Group("/v1")
 	{
-		v1.NewTranslationRoutes(apiV1Group, t, l)
+		v1.NewTranslationRoutes(apiV1Group, uc.Translation, l)
+		v1.NewCommentRoutes(apiV1Group, uc.Comment, l)
 	}
 }
