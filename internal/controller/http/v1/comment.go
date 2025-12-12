@@ -67,7 +67,7 @@ func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 	}
 
 	// Вызов usecase — вся логика фильтрации/пагинации в бизнес-слое
-	comments, err := h.U.ListComments(entityID, page, limit, sortAsc)
+	comments, err := h.U.ListComments(ctx.UserContext(), entityID, page, limit, sortAsc)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment list")
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot fetch comments")
@@ -84,7 +84,7 @@ func (h *CommentHandler) get(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid id")
 	}
 
-	c, err := h.U.GetCommentByID(id)
+	c, err := h.U.GetCommentByID(ctx.UserContext(), id)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment get")
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot fetch comment")
@@ -110,7 +110,7 @@ func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 	}
 
 	// Передаём в usecase: handler не занимается созданием entity напрямую
-	created, err := h.U.CreateComment(body.UserID, body.EntityID, body.Text)
+	created, err := h.U.CreateComment(ctx.UserContext(), body.UserID, body.EntityID, body.Text)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment create")
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot create comment")
@@ -139,7 +139,7 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 	}
 
 	// В usecase реализованы проверки авторства и прочие бизнес-правила
-	if err := h.U.UpdateComment(id, body.UserID, body.Text); err != nil {
+	if err := h.U.UpdateComment(ctx.UserContext(), id, body.UserID, body.Text); err != nil {
 		h.L.Error(err, "http - v1 - comment update")
 		// можно маппить бизнес-ошибки в http статусы (например ErrNotFound -> 404, ErrForbidden -> 403)
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot update comment")
@@ -156,7 +156,7 @@ func (h *CommentHandler) delete(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid id")
 	}
 
-	if err := h.U.UpdateComment(id, 0, ""); err != nil {
+	if err := h.U.UpdateComment(ctx.UserContext(), id, 0, ""); err != nil {
 		// В данном примере предполагается, что usecase имеет отдельный метод DeleteComment.
 		// Если у тебя есть DeleteComment, используй его. Здесь показан placeholder.
 		h.L.Error(err, "http - v1 - comment delete")
