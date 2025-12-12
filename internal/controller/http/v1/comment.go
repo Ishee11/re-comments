@@ -21,17 +21,6 @@ type CommentHandler struct {
 	V *validator.Validate
 }
 
-// Ensure this matches how you register handlers in router.go
-// For convenience we expose a constructor used by the router file above.
-func NewCommentHandler(u usecase.Comment, l logger.Interface) *CommentHandler {
-	return &CommentHandler{U: u, L: l, V: validator.New(validator.WithRequiredStructEnabled())}
-}
-
-// helper: uniform error responses (you can replace with your project's response helpers)
-/*func errorResponse(ctx *fiber.Ctx, status int, msg string) error {
-	return ctx.Status(status).JSON(map[string]string{"error": msg})
-}*/
-
 // --- Handlers -----------------------------------------------------------------
 
 // list: GET /v1/comments?entity_id=...&page=...&limit=...&sort=asc|desc
