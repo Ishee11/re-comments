@@ -3,6 +3,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/evrone/go-clean-template/internal/usecase/comment"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,10 +32,14 @@ func Run(cfg *config.Config) {
 	defer pg.Close()
 
 	// Use-Case
+	commentUseCase := comment.New(
+		persistent.NewCommentRepo(pg),
+	)
 	translationUseCase := translation.New(
 		persistent.New(pg),
 		webapi.New(),
 	)
+	useCase := http.UseCases{Translation: translationUseCase, Comment: commentUseCase}
 
 	// RabbitMQ RPC Server
 	rmqRouter := amqprpc.NewRouter(translationUseCase, l)
@@ -44,10 +49,9 @@ func Run(cfg *config.Config) {
 		l.Fatal(fmt.Errorf("app - Run - rmqServer - server.New: %w", err))
 	}
 
-
 	// HTTP Server
 	httpServer := httpserver.New(httpserver.Port(cfg.HTTP.Port), httpserver.Prefork(cfg.HTTP.UsePreforkMode))
-	http.NewRouter(httpServer.App, cfg, translationUseCase, l)
+	http.NewRouter(httpServer.App, cfg, useCase, l)
 
 	// Start servers
 	rmqServer.Start()
@@ -71,7 +75,6 @@ func Run(cfg *config.Config) {
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
-
 
 	err = rmqServer.Shutdown()
 	if err != nil {
