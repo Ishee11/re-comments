@@ -10,6 +10,7 @@
 package mock
 
 import (
+	"context"
 	reflect "reflect"
 
 	entity "github.com/evrone/go-clean-template/internal/entity"
@@ -41,7 +42,7 @@ func (m *MockCommentRepository) EXPECT() *MockCommentRepositoryMockRecorder {
 }
 
 // CreateComment mocks base method.
-func (m *MockCommentRepository) CreateComment(c *entity.Comment) error {
+func (m *MockCommentRepository) CreateComment(ctx context.Context, c *entity.Comment) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateComment", c)
 	ret0, _ := ret[0].(error)
@@ -55,7 +56,7 @@ func (mr *MockCommentRepositoryMockRecorder) CreateComment(c any) *gomock.Call {
 }
 
 // GetCommentByID mocks base method.
-func (m *MockCommentRepository) GetCommentByID(id int64) (*entity.Comment, error) {
+func (m *MockCommentRepository) GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCommentByID", id)
 	ret0, _ := ret[0].(*entity.Comment)
@@ -70,7 +71,7 @@ func (mr *MockCommentRepositoryMockRecorder) GetCommentByID(id any) *gomock.Call
 }
 
 // ListCommentByEntity mocks base method.
-func (m *MockCommentRepository) ListCommentByEntity(entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error) {
+func (m *MockCommentRepository) ListCommentByEntity(ctx context.Context, entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListCommentByEntity", entityID, page, limit, sortAsc)
 	ret0, _ := ret[0].([]*entity.Comment)
@@ -85,7 +86,7 @@ func (mr *MockCommentRepositoryMockRecorder) ListCommentByEntity(entityID, page,
 }
 
 // UpdateComment mocks base method.
-func (m *MockCommentRepository) UpdateComment(c *entity.Comment) error {
+func (m *MockCommentRepository) UpdateComment(ctx context.Context, c *entity.Comment) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateComment", c)
 	ret0, _ := ret[0].(error)

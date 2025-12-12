@@ -1,6 +1,7 @@
 package comment
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -66,7 +67,7 @@ func TestUseCase_CreateComment(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mock()
-			got, err := useCase.CreateComment(1, 1, "test")
+			got, err := useCase.CreateComment(context.Background(), 1, 1, "test")
 			tc.want(t, got, err)
 		})
 	}
@@ -138,7 +139,7 @@ func TestUseCase_UpdateComment(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mock()
-			err := useCase.UpdateComment(1, 1, "new text")
+			err := useCase.UpdateComment(context.Background(), 1, 1, "new text")
 			tc.want(t, err)
 		})
 	}
