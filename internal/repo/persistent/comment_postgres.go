@@ -2,10 +2,12 @@ package persistent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/evrone/go-clean-template/internal/entity"
 	"github.com/evrone/go-clean-template/pkg/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 // CommentRepo -.
@@ -38,8 +40,8 @@ func (r *CommentRepo) CreateComment(ctx context.Context, c *entity.Comment) erro
 
 func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error) {
 	var comment entity.Comment
-	sql, _, err := r.Builder.
-		Select("entity_id, user_id, text, created_at").
+	sql, args, err := r.Builder.
+		Select("id, entity_id, user_id, text, created_at").
 		From("comments").
 		Where("id = ?", id).
 		ToSql()
@@ -47,18 +49,13 @@ func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Com
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Builder: %w", err)
 	}
 
-	rows, err := r.Pool.Query(ctx, sql)
+	row := r.Pool.QueryRow(ctx, sql, args...)
+	err = row.Scan(&comment.ID, &comment.EntityID, &comment.UserID, &comment.Text, &comment.CreatedAt)
 	if err != nil {
-		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Pool.Query: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		err = rows.Scan(&comment.EntityID, &comment.UserID, &comment.Text, &comment.CreatedAt)
-		if err != nil {
-			return nil, fmt.Errorf("CommentRepo - GetCommentByID - rows.Scan: %w", err)
+		if errors.Is(err, pgx.ErrNoRows) { // или sql.ErrNoRows в зависимости от драйвера
+			return nil, nil // можно маппить в 404 в usecase/handler
 		}
-
+		return nil, fmt.Errorf("CommentRepo - GetCommentByID - row.Scan: %w", err)
 	}
 
 	return &comment, nil
