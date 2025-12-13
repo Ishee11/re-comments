@@ -79,7 +79,16 @@ func (r *CommentRepo) UpdateComment(ctx context.Context, c *entity.Comment) erro
 	return nil
 }
 
-func sanitizePagination(page, limit int64) (limit64, offset64 uint64) {
+// safeInt64ToUint64 безопасно преобразует int64 в uint64
+func safeInt64ToUint64(value int64) (uint64, error) {
+	if value < 0 {
+		return 0, fmt.Errorf("negative value cannot be converted to uint64: %d", value)
+	}
+	return uint64(value), nil
+}
+
+// sanitizePagination обрабатывает параметры пагинации и возвращает безопасные значения
+func sanitizePagination(page, limit int64) (limit64, offset64 uint64, err error) {
 	const (
 		defaultLimit = 20
 		maxLimit     = 100
@@ -95,14 +104,27 @@ func sanitizePagination(page, limit int64) (limit64, offset64 uint64) {
 		limit = maxLimit
 	}
 
-	limit64 = uint64(limit)
+	// Безопасно преобразуем limit
+	limit64, err = safeInt64ToUint64(limit)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid limit: %w", err)
+	}
+
+	// Вычисляем offset
 	offset := (page - 1) * limit
 	if offset < 0 {
 		offset = 0
 	}
-	offset64 = uint64(offset)
-	return
+
+	// Безопасно преобразуем offset
+	offset64, err = safeInt64ToUint64(offset)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid offset: %w", err)
+	}
+
+	return limit64, offset64, nil
 }
+
 func sortDirection(sortAsc bool) string {
 	if sortAsc {
 		return "ASC"
@@ -111,7 +133,12 @@ func sortDirection(sortAsc bool) string {
 }
 
 func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64, page int64, limit int64, sortAsc bool) ([]*entity.Comment, error) {
-	limit64, offset64 := sanitizePagination(page, limit)
+	limit64, offset64, err := sanitizePagination(page, limit)
+	if err != nil {
+		// В случае ошибки пагинации возвращаем пустой результат
+		return []*entity.Comment{}, nil
+	}
+
 	dir := sortDirection(sortAsc)
 
 	sql, args, err := r.Builder.
