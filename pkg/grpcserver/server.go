@@ -20,6 +20,8 @@ type Server struct {
 }
 
 // New -.
+//
+//nolint:unused
 func New(opts ...Option) *Server {
 	s := &Server{
 		App:     pbgrpc.NewServer(),

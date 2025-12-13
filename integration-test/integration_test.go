@@ -67,7 +67,11 @@ func getHealthCheck(url string) (int, error) {
 		return -1, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			log.Printf("warning: failed to close response body: %v", cerr)
+		}
+	}()
 
 	return resp.StatusCode, nil
 }
@@ -152,7 +156,11 @@ func TestHTTPDoTranslateV1(t *testing.T) {
 				t.Fatalf("Failed to send request: %v", err)
 			}
 
-			defer resp.Body.Close()
+			defer func() {
+				if cerr := resp.Body.Close(); cerr != nil {
+					t.Logf("warning: failed to close response body: %v", cerr)
+				}
+			}()
 
 			if resp.StatusCode != tt.expected {
 				t.Errorf("Expected status %d, got %d", tt.expected, resp.StatusCode)
@@ -173,7 +181,11 @@ func TestHTTPHistoryV1(t *testing.T) {
 		t.Fatalf("Failed to send request: %v", err)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			t.Logf("warning: failed to close response body: %v", cerr)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status %d, got %d", http.StatusOK, resp.StatusCode)

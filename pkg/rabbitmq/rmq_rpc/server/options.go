@@ -6,6 +6,8 @@ import "time"
 type Option func(*Server)
 
 // Timeout -.
+//
+//nolint:unused
 func Timeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.timeout = timeout
@@ -13,6 +15,8 @@ func Timeout(timeout time.Duration) Option {
 }
 
 // ConnWaitTime -.
+//
+//nolint:unused
 func ConnWaitTime(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.conn.WaitTime = timeout
@@ -20,6 +24,8 @@ func ConnWaitTime(timeout time.Duration) Option {
 }
 
 // ConnAttempts -.
+//
+//nolint:unused
 func ConnAttempts(attempts int) Option {
 	return func(s *Server) {
 		s.conn.Attempts = attempts

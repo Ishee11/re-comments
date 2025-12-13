@@ -13,6 +13,8 @@ func MaxPoolSize(size int) Option {
 }
 
 // ConnAttempts -.
+//
+//nolint:unused
 func ConnAttempts(attempts int) Option {
 	return func(c *Postgres) {
 		c.connAttempts = attempts
@@ -20,6 +22,8 @@ func ConnAttempts(attempts int) Option {
 }
 
 // ConnTimeout -.
+//
+//nolint:unused
 func ConnTimeout(timeout time.Duration) Option {
 	return func(c *Postgres) {
 		c.connTimeout = timeout

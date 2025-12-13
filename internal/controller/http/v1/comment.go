@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/evrone/go-clean-template/internal/controller/http/v1/request"
-	//"github.com/evrone/go-clean-template/internal/entity"
 	"github.com/evrone/go-clean-template/internal/usecase"
 	"github.com/evrone/go-clean-template/pkg/logger"
 	"github.com/go-playground/validator/v10"
@@ -49,13 +48,14 @@ func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 	// Пагинация: разумные дефолты
 	pageStr := ctx.Query("page", "1")
 	limitStr := ctx.Query("limit", "20")
-	page, _ := strconv.ParseInt(pageStr, 10, 64)
-	limit, _ := strconv.ParseInt(limitStr, 10, 64)
-	if page <= 0 {
-		page = 1
+	page, err := strconv.ParseInt(pageStr, 10, 64)
+	if err != nil || page <= 0 {
+		page = 1 // или можно return с ошибкой
 	}
-	if limit <= 0 || limit > 100 {
-		limit = 20
+
+	limit, err := strconv.ParseInt(limitStr, 10, 64)
+	if err != nil || limit <= 0 || limit > 100 {
+		limit = 20 // или return с ошибкой
 	}
 
 	// Сортировка (по дате)
@@ -179,7 +179,7 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(http.StatusOK)
 }
 
-// delete: DELETE /v1/comments/:id
+/*// delete: DELETE /v1/comments/:id
 // @Summary     Delete comment
 // @Description Delete a comment by ID (author only)
 // @Tags        comment
@@ -207,18 +207,4 @@ func (h *CommentHandler) delete(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.SendStatus(http.StatusNoContent)
-}
-
-// -----------------------------------------------------------------------------
-// Notes:
-// 1) В примере выше предполагается, что usecase.Comment содержит методы:
-//    CreateComment(ctx context.Context, userID, entityID int64, text string) (*entity.Comment, error)
-//    UpdateComment(ctx context.Context, id, userID int64, text string) error
-//    ListComments(ctx context.Context, entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error)
-//    GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error)
-// 2) В handler'е мы не реализуем бизнес-логику — только адаптация.
-// 3) Маппинг ошибок из usecase в http статусы стоит централизовать: например, через пакет errors
-//    с предопределёнными переменными (ErrNotFound, ErrForbidden, ErrValidation) и функцией MapToHTTP.
-// 4) Реализация Delete подразумевает отдельный метод usecase.DeleteComment(ctx, id, userID).
-//    В коде выше показан placeholder; подмени на реальный вызов.
-// 5) Swagger аннотации можно добавить над каждым handler методом аналогично translation example.
+}*/

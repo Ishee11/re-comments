@@ -18,7 +18,7 @@ type Comment struct {
 var ErrEmptyCommentText = errors.New("text is empty")
 var ErrNotAuthor = errors.New("not author")
 
-func NewComment(entityID int64, userID int64, text string) (*Comment, error) {
+func NewComment(entityID, userID int64, text string) (*Comment, error) {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return nil, ErrEmptyCommentText

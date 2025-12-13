@@ -3,10 +3,11 @@ package app
 
 import (
 	"fmt"
-	"github.com/evrone/go-clean-template/internal/usecase/comment"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/evrone/go-clean-template/internal/usecase/comment"
 
 	"github.com/evrone/go-clean-template/config"
 	amqprpc "github.com/evrone/go-clean-template/internal/controller/amqp_rpc"

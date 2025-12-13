@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"github.com/evrone/go-clean-template/internal/entity"
 )
 

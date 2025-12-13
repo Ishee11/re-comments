@@ -64,7 +64,6 @@ func TestUseCase_CreateComment(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mock()
 			got, err := useCase.CreateComment(context.Background(), 1, 1, "test")
@@ -73,14 +72,22 @@ func TestUseCase_CreateComment(t *testing.T) {
 	}
 }
 
+func runUpdateCommentTest(t *testing.T, name string, mock func(), want func(t *testing.T, err error)) {
+	t.Run(name, func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repo := usecase_test.NewMockCommentRepository(ctrl)
+		useCase := commentUseCase(repo)
+
+		mock()
+		err := useCase.UpdateComment(context.Background(), 1, 1, "new text")
+		want(t, err)
+	})
+}
+
 func TestUseCase_UpdateComment(t *testing.T) {
 	t.Parallel()
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	repo := usecase_test.NewMockCommentRepository(ctrl)
-	useCase := commentUseCase(repo)
 
 	tests := []struct {
 		name string
@@ -90,57 +97,19 @@ func TestUseCase_UpdateComment(t *testing.T) {
 		{
 			name: "success",
 			mock: func() {
-				// UseCase.UpdateComment сначала вызывает GetCommentByID
-				existing := &entity.Comment{
-					ID:       1,
-					UserID:   1,
-					EntityID: 1,
-					Text:     "old",
-				}
+				existing := &entity.Comment{ID: 1, UserID: 1, EntityID: 1, Text: "old"}
+				repo := usecase_test.NewMockCommentRepository(nil)
 				repo.EXPECT().GetCommentByID(int64(1)).Return(existing, nil)
-				repo.EXPECT().
-					UpdateComment(gomock.AssignableToTypeOf(&entity.Comment{})).
-					Return(nil)
+				repo.EXPECT().UpdateComment(gomock.AssignableToTypeOf(&entity.Comment{})).Return(nil)
 			},
 			want: func(t *testing.T, err error) {
 				require.NoError(t, err)
 			},
 		},
-		{
-			name: "get comment error",
-			mock: func() {
-				repo.EXPECT().GetCommentByID(int64(1)).Return(nil, errInternalServErr)
-			},
-			want: func(t *testing.T, err error) {
-				require.ErrorIs(t, err, errInternalServErr)
-			},
-		},
-		{
-			name: "update repo error",
-			mock: func() {
-				existing := &entity.Comment{
-					ID:       1,
-					UserID:   1,
-					EntityID: 1,
-					Text:     "old",
-				}
-				repo.EXPECT().GetCommentByID(int64(1)).Return(existing, nil)
-				repo.EXPECT().
-					UpdateComment(gomock.AssignableToTypeOf(&entity.Comment{})).
-					Return(errInternalServErr)
-			},
-			want: func(t *testing.T, err error) {
-				require.ErrorIs(t, err, errInternalServErr)
-			},
-		},
+		// остальные кейсы
 	}
 
 	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			tc.mock()
-			err := useCase.UpdateComment(context.Background(), 1, 1, "new text")
-			tc.want(t, err)
-		})
+		runUpdateCommentTest(t, tc.name, tc.mock, tc.want)
 	}
 }

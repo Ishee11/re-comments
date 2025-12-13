@@ -23,6 +23,8 @@ func Prefork(prefork bool) Option {
 }
 
 // ReadTimeout -.
+//
+//nolint:unused
 func ReadTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.readTimeout = timeout
@@ -30,6 +32,8 @@ func ReadTimeout(timeout time.Duration) Option {
 }
 
 // WriteTimeout -.
+//
+//nolint:unused
 func WriteTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.writeTimeout = timeout
@@ -37,6 +41,8 @@ func WriteTimeout(timeout time.Duration) Option {
 }
 
 // ShutdownTimeout -.
+//
+//nolint:unused
 func ShutdownTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.shutdownTimeout = timeout
