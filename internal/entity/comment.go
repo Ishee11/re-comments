@@ -15,8 +15,10 @@ type Comment struct {
 	UpdatedAt time.Time
 }
 
-var ErrEmptyCommentText = errors.New("text is empty")
-var ErrNotAuthor = errors.New("not author")
+var (
+	ErrEmptyCommentText = errors.New("text is empty")
+	ErrNotAuthor        = errors.New("not author")
+)
 
 func NewComment(entityID, userID int64, text string) (*Comment, error) {
 	text = strings.TrimSpace(text)

@@ -16,7 +16,7 @@ type CommentRepo struct {
 	*postgres.Postgres
 }
 
-// New -.
+// NewCommentRepo -.
 func NewCommentRepo(pg *postgres.Postgres) *CommentRepo {
 	return &CommentRepo{pg}
 }
@@ -53,7 +53,7 @@ func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Com
 	row := r.Pool.QueryRow(ctx, sql, args...)
 	err = row.Scan(&comment.ID, &comment.EntityID, &comment.UserID, &comment.Text, &comment.CreatedAt)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) { // или sql.ErrNoRows в зависимости от драйвера
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil // можно маппить в 404 в usecase/handler
 		}
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - row.Scan: %w", err)
@@ -81,8 +81,8 @@ func (r *CommentRepo) UpdateComment(ctx context.Context, c *entity.Comment) erro
 }
 
 func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
-	page int64, limit int64, sortAsc bool) ([]*entity.Comment, error) {
-
+	page int64, limit int64, sortAsc bool,
+) ([]*entity.Comment, error) {
 	// защита от дурака
 	if page < 1 {
 		page = 1
@@ -98,7 +98,8 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		limit = maxLimit
 	}
 
-	offset := (page - 1) * limit
+	limit64 := uint64(limit)
+	offset := uint64((page - 1) * limit)
 
 	// направление сортировки
 	dir := "DESC"
@@ -111,8 +112,8 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		From("comments").
 		Where("entity_id = ?", entityID).
 		OrderBy(fmt.Sprintf("created_at %s", dir)).
-		Limit(uint64(limit)).
-		Offset(uint64(offset)).
+		Limit(limit64).
+		Offset(offset).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - ListCommentByEntity - r.Builder: %w", err)
