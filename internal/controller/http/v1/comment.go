@@ -179,7 +179,7 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(http.StatusOK)
 }
 
-/*// delete: DELETE /v1/comments/:id
+// delete: DELETE /v1/comments/:id
 // @Summary     Delete comment
 // @Description Delete a comment by ID (author only)
 // @Tags        comment
@@ -207,4 +207,4 @@ func (h *CommentHandler) delete(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.SendStatus(http.StatusNoContent)
-}*/
+}
