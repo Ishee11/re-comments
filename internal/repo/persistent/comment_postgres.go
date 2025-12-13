@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/evrone/go-clean-template/internal/entity"
 	"github.com/evrone/go-clean-template/pkg/postgres"
@@ -79,7 +80,7 @@ func (r *CommentRepo) UpdateComment(ctx context.Context, c *entity.Comment) erro
 	return nil
 }
 
-// safeInt64ToUint64 безопасно преобразует int64 в uint64
+// safeInt64ToUint64 безопасно преобразует int64 в uint64.
 func safeInt64ToUint64(value int64) (uint64, error) {
 	if value < 0 {
 		return 0, fmt.Errorf("negative value cannot be converted to uint64: %d", value)
@@ -87,7 +88,7 @@ func safeInt64ToUint64(value int64) (uint64, error) {
 	return uint64(value), nil
 }
 
-// sanitizePagination обрабатывает параметры пагинации и возвращает безопасные значения
+// sanitizePagination обрабатывает параметры пагинации и возвращает безопасные значения.
 func sanitizePagination(page, limit int64) (limit64, offset64 uint64, err error) {
 	const (
 		defaultLimit = 20
@@ -132,7 +133,7 @@ func sortDirection(sortAsc bool) string {
 	return "DESC"
 }
 
-func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64, page int64, limit int64, sortAsc bool) ([]*entity.Comment, error) {
+func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error) {
 	limit64, offset64, err := sanitizePagination(page, limit)
 	if err != nil {
 		// В случае ошибки пагинации возвращаем пустой результат
