@@ -79,18 +79,15 @@ func (r *CommentRepo) UpdateComment(ctx context.Context, c *entity.Comment) erro
 	return nil
 }
 
-func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
-	page int64, limit int64, sortAsc bool,
-) ([]*entity.Comment, error) {
-	// защита от дурака
-	if page < 1 {
-		page = 1
-	}
-
+func sanitizePagination(page, limit int64) (limit64, offset64 uint64) {
 	const (
 		defaultLimit = 20
 		maxLimit     = 100
 	)
+
+	if page < 1 {
+		page = 1
+	}
 	if limit <= 0 {
 		limit = defaultLimit
 	}
@@ -98,21 +95,24 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		limit = maxLimit
 	}
 
-	// безопасное приведение для билдера
-	limit64 := uint64(limit)
-
-	// вычисляем offset
+	limit64 = uint64(limit)
 	offset := (page - 1) * limit
 	if offset < 0 {
 		offset = 0
 	}
-	offset64 := uint64(offset)
-
-	// направление сортировки
-	dir := "DESC"
+	offset64 = uint64(offset)
+	return
+}
+func sortDirection(sortAsc bool) string {
 	if sortAsc {
-		dir = "ASC"
+		return "ASC"
 	}
+	return "DESC"
+}
+
+func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64, page int64, limit int64, sortAsc bool) ([]*entity.Comment, error) {
+	limit64, offset64 := sanitizePagination(page, limit)
+	dir := sortDirection(sortAsc)
 
 	sql, args, err := r.Builder.
 		Select("id", "entity_id", "user_id", "text", "created_at", "updated_at").
