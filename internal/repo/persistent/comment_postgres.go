@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-
 	sq "github.com/Masterminds/squirrel"
 	"github.com/evrone/go-clean-template/internal/entity"
 	"github.com/evrone/go-clean-template/pkg/postgres"
@@ -88,6 +86,7 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 	if page < 1 {
 		page = 1
 	}
+
 	const (
 		defaultLimit = 20
 		maxLimit     = 100
@@ -99,21 +98,15 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		limit = maxLimit
 	}
 
-	// С limit ≤ 100, для переполнения int64 потребуется page > 9.22e16
-	// Это нереально большая страница, но на всякий случай проверим
-	var offset uint64
-	if page > 1 {
-		// Максимальное значение page, которое не вызовет переполнение int64
-		// при умножении на limit (max 100)
-		maxSafePage := math.MaxInt64/limit + 1
-		if page > maxSafePage {
-			// Слишком большая страница - возвращаем пустой результат
-			return []*entity.Comment{}, nil
-		}
+	// безопасное приведение для билдера
+	limit64 := uint64(limit)
 
-		// Теперь преобразование безопасно
-		offset = uint64((page - 1) * limit)
+	// вычисляем offset
+	offset := (page - 1) * limit
+	if offset < 0 {
+		offset = 0
 	}
+	offset64 := uint64(offset)
 
 	// направление сортировки
 	dir := "DESC"
@@ -126,8 +119,8 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		From("comments").
 		Where("entity_id = ?", entityID).
 		OrderBy(fmt.Sprintf("created_at %s", dir)).
-		Limit(uint64(limit)).
-		Offset(offset).
+		Limit(limit64).
+		Offset(offset64).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - ListCommentByEntity - r.Builder: %w", err)
