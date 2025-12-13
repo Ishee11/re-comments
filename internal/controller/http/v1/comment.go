@@ -20,6 +20,13 @@ type CommentHandler struct {
 	V *validator.Validate
 }
 
+type ListCommentsRequest struct {
+	EntityID int64  `query:"entity_id" validate:"required,min=1"`
+	Page     int64  `query:"page" validate:"min=1"`
+	Limit    int64  `query:"limit" validate:"min=1,max=100"`
+	Sort     string `query:"sort" validate:"oneof=asc desc"`
+}
+
 // list: GET /v1/comments?entity_id=...&page=...&limit=...&sort=asc|desc
 // @Summary     List comments
 // @Description Get comments by entity ID with pagination and sorting
@@ -34,39 +41,38 @@ type CommentHandler struct {
 // @Failure     400 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /comments [get]
+// Структура для параметров запроса
 func (h *CommentHandler) list(ctx *fiber.Ctx) error {
-	// Парсим query-параметры: entity_id обязателен для фильтра
-	entityIDStr := ctx.Query("entity_id")
-	if entityIDStr == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "entity_id is required")
-	}
-	entityID, err := strconv.ParseInt(entityIDStr, 10, 64)
-	if err != nil || entityID <= 0 {
-		return errorResponse(ctx, http.StatusBadRequest, "invalid entity_id")
+	// Парсинг в структуру
+	var req ListCommentsRequest
+	if err := ctx.QueryParser(&req); err != nil {
+		return errorResponse(ctx, http.StatusBadRequest, "invalid query parameters")
 	}
 
-	// Пагинация: разумные дефолты
-	pageStr := ctx.Query("page", "1")
-	limitStr := ctx.Query("limit", "20")
-	page, err := strconv.ParseInt(pageStr, 10, 64)
-	if err != nil || page <= 0 {
-		page = 1 // или можно return с ошибкой
+	// Валидация
+	if err := h.V.Struct(&req); err != nil {
+		return errorResponse(ctx, http.StatusBadRequest, err.Error())
 	}
 
-	limit, err := strconv.ParseInt(limitStr, 10, 64)
-	if err != nil || limit <= 0 || limit > 100 {
-		limit = 20 // или return с ошибкой
+	// Установка дефолтных значений
+	if req.Page == 0 {
+		req.Page = 1
+	}
+	if req.Limit == 0 {
+		req.Limit = 20
+	}
+	if req.Sort == "" {
+		req.Sort = "desc"
 	}
 
-	// Сортировка (по дате)
-	sort := ctx.Query("sort", "desc")
-	sortAsc := false
-	if sort == "asc" {
-		sortAsc = true
-	}
-
-	// Вызов usecase — вся логика фильтрации/пагинации в бизнес-слое
-	comments, err := h.U.ListComments(ctx.UserContext(), entityID, page, limit, sortAsc)
+	// Вызов usecase
+	comments, err := h.U.ListComments(
+		ctx.UserContext(),
+		req.EntityID,
+		req.Page,
+		req.Limit,
+		req.Sort == "asc",
+	)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment list")
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot fetch comments")

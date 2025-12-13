@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/evrone/go-clean-template/internal/entity"
@@ -98,7 +99,16 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		limit = maxLimit
 	}
 
+	// Проверка на возможное переполнение перед преобразованием
 	limit64 := uint64(limit)
+
+	// Вычисляем offset с проверкой на переполнение
+	if page > math.MaxInt64/limit+1 {
+		// Если page настолько большое, что вызовет переполнение,
+		// лучше вернуть пустой результат или ошибку
+		return []*entity.Comment{}, nil
+	}
+
 	offset := uint64((page - 1) * limit)
 
 	// направление сортировки
