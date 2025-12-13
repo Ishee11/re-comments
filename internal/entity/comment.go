@@ -46,5 +46,6 @@ func (c *Comment) UpdateComment(userID int64, text string) error {
 	}
 	c.Text = text
 	c.UpdatedAt = time.Now().UTC()
+
 	return nil
 }

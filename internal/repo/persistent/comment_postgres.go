@@ -11,6 +11,13 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// Ошибки для безопасного преобразования типов.
+var (
+	ErrNegativeValue = errors.New("negative value cannot be converted to uint64")
+	ErrInvalidLimit  = errors.New("invalid limit")
+	ErrInvalidOffset = errors.New("invalid offset")
+)
+
 // CommentRepo -.
 type CommentRepo struct {
 	*postgres.Postgres
@@ -83,7 +90,7 @@ func (r *CommentRepo) UpdateComment(ctx context.Context, c *entity.Comment) erro
 // safeInt64ToUint64 безопасно преобразует int64 в uint64.
 func safeInt64ToUint64(value int64) (uint64, error) {
 	if value < 0 {
-		return 0, fmt.Errorf("negative value cannot be converted to uint64: %d", value)
+		return 0, fmt.Errorf("%w: %d", ErrNegativeValue, value)
 	}
 	return uint64(value), nil
 }
@@ -105,22 +112,22 @@ func sanitizePagination(page, limit int64) (limit64, offset64 uint64, err error)
 		limit = maxLimit
 	}
 
-	// Безопасно преобразуем limit
+	// Безопасно преобразуем limit.
 	limit64, err = safeInt64ToUint64(limit)
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid limit: %w", err)
+		return 0, 0, fmt.Errorf("%w: %w", ErrInvalidLimit, err)
 	}
 
-	// Вычисляем offset
+	// Вычисляем offset.
 	offset := (page - 1) * limit
 	if offset < 0 {
 		offset = 0
 	}
 
-	// Безопасно преобразуем offset
+	// Безопасно преобразуем offset.
 	offset64, err = safeInt64ToUint64(offset)
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid offset: %w", err)
+		return 0, 0, fmt.Errorf("%w: %w", ErrInvalidOffset, err)
 	}
 
 	return limit64, offset64, nil
@@ -136,7 +143,7 @@ func sortDirection(sortAsc bool) string {
 func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error) {
 	limit64, offset64, err := sanitizePagination(page, limit)
 	if err != nil {
-		// В случае ошибки пагинации возвращаем пустой результат
+		// В случае ошибки пагинации возвращаем пустой результат.
 		return []*entity.Comment{}, nil
 	}
 

@@ -22,12 +22,12 @@ import (
 // Содержит методы для создания, изменения и получения списка комментариев.
 // Использует репозиторий для сохранения и получения данных.
 type UseCase struct {
-	repo repo.CommentRepository
+	commentRepo repo.CommentRepository
 }
 
 // New создаёт новый CommentUseCase с переданным репозиторием.
-func New(repo repo.CommentRepository) *UseCase {
-	return &UseCase{repo: repo}
+func New(commentRepo repo.CommentRepository) *UseCase {
+	return &UseCase{commentRepo: commentRepo}
 }
 
 // CreateComment создаёт новый комментарий для указанной сущности.
@@ -39,7 +39,7 @@ func (uc *UseCase) CreateComment(ctx context.Context, userID, entityID int64, te
 	if err != nil {
 		return nil, fmt.Errorf("CommentUseCase - CreateComment - entity.NewComment: %w", err)
 	}
-	if err = uc.repo.CreateComment(ctx, c); err != nil {
+	if err = uc.commentRepo.CreateComment(ctx, c); err != nil {
 		return nil, fmt.Errorf("CommentUseCase - CreateComment - uc.repo.CreateComment: %w", err)
 	}
 	return c, nil
@@ -50,14 +50,14 @@ func (uc *UseCase) CreateComment(ctx context.Context, userID, entityID int64, te
 // Вызывает метод UpdateCommentText сущности Comment и сохраняет изменения в репозитории.
 // Возвращает ошибку, если комментарий не найден или пользователь не автор.
 func (uc *UseCase) UpdateComment(ctx context.Context, id, userID int64, text string) error {
-	c, err := uc.repo.GetCommentByID(ctx, id)
+	c, err := uc.commentRepo.GetCommentByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("CommentUseCase - UpdateComment - uc.repo.GetCommentByID: %w", err)
 	}
 	if err = c.UpdateComment(userID, text); err != nil {
 		return fmt.Errorf("CommentUseCase - UpdateCommentText - c.UpdateCommentText: %w", err)
 	}
-	return uc.repo.UpdateComment(ctx, c)
+	return uc.commentRepo.UpdateComment(ctx, c)
 }
 
 // ListComments возвращает список комментариев для указанной сущности.
@@ -65,7 +65,7 @@ func (uc *UseCase) UpdateComment(ctx context.Context, id, userID int64, text str
 // Обращается к репозиторию для получения данных.
 // Возвращает срез комментариев или ошибку.
 func (uc *UseCase) ListComments(ctx context.Context, entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error) {
-	comments, err := uc.repo.ListCommentByEntity(ctx, entityID, page, limit, sortAsc)
+	comments, err := uc.commentRepo.ListCommentByEntity(ctx, entityID, page, limit, sortAsc)
 	if err != nil {
 		return nil, fmt.Errorf("CommentUseCase - ListComments - uc.repo.ListCommentByEntity: %w", err)
 	}
@@ -73,5 +73,5 @@ func (uc *UseCase) ListComments(ctx context.Context, entityID, page, limit int64
 }
 
 func (uc *UseCase) GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error) {
-	return uc.repo.GetCommentByID(ctx, id)
+	return uc.commentRepo.GetCommentByID(ctx, id)
 }

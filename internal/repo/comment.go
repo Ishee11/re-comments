@@ -20,6 +20,6 @@ import (
 type CommentRepository interface {
 	CreateComment(ctx context.Context, c *entity.Comment) error
 	UpdateComment(ctx context.Context, c *entity.Comment) error
-	ListCommentByEntity(ctx context.Context, entityID int64, page int64, limit int64, sortAsc bool) ([]*entity.Comment, error)
+	ListCommentByEntity(ctx context.Context, entityID, page, limit int64, sortAsc bool) ([]*entity.Comment, error)
 	GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error)
 }

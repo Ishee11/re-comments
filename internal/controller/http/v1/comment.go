@@ -75,6 +75,7 @@ func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 	)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment list")
+
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot fetch comments")
 	}
 
@@ -103,6 +104,7 @@ func (h *CommentHandler) get(ctx *fiber.Ctx) error {
 	c, err := h.U.GetCommentByID(ctx.UserContext(), id)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment get")
+
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot fetch comment")
 	}
 	if c == nil {

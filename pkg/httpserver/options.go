@@ -24,7 +24,7 @@ func Prefork(prefork bool) Option {
 
 // ReadTimeout -.
 //
-//nolint:unused
+//nolint:unused // Используется через рефлексию или для совместимости API
 func ReadTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.readTimeout = timeout
@@ -33,7 +33,7 @@ func ReadTimeout(timeout time.Duration) Option {
 
 // WriteTimeout -.
 //
-//nolint:unused
+//nolint:unused // Используется через рефлексию или для совместимости API
 func WriteTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.writeTimeout = timeout
@@ -42,7 +42,7 @@ func WriteTimeout(timeout time.Duration) Option {
 
 // ShutdownTimeout -.
 //
-//nolint:unused
+//nolint:unused // Используется через рефлексию или для совместимости API
 func ShutdownTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.shutdownTimeout = timeout
