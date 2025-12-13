@@ -41,6 +41,7 @@ func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Com
 	sql, _, err := r.Builder.
 		Select("entity_id, user_id, text, created_at").
 		From("comments").
+		Where("id = ?", id).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Builder: %w", err)
