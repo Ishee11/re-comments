@@ -21,10 +21,20 @@ type CommentHandler struct {
 	V *validator.Validate
 }
 
-// --- Handlers -----------------------------------------------------------------
-
 // list: GET /v1/comments?entity_id=...&page=...&limit=...&sort=asc|desc
-// Пояснения в комментариях внутри.
+// @Summary     List comments
+// @Description Get comments by entity ID with pagination and sorting
+// @Tags        comment
+// @Accept      json
+// @Produce     json
+// @Param       entity_id query int true "Entity ID"
+// @Param       page query int false "Page number" default(1)
+// @Param       limit query int false "Items per page" default(20)
+// @Param       sort query string false "Sort by created_at asc|desc" default(desc)
+// @Success     200 {array} entity.Comment
+// @Failure     400 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /comments [get]
 func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 	// Парсим query-параметры: entity_id обязателен для фильтра
 	entityIDStr := ctx.Query("entity_id")
@@ -66,6 +76,17 @@ func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 }
 
 // get: GET /v1/comments/:id
+// @Summary     Get comment by ID
+// @Description Fetch a single comment by its ID
+// @Tags        comment
+// @Accept      json
+// @Produce     json
+// @Param       id path int true "Comment ID"
+// @Success     200 {object} entity.Comment
+// @Failure     400 {object} response.Error
+// @Failure     404 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /comments/{id} [get]
 func (h *CommentHandler) get(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -86,7 +107,16 @@ func (h *CommentHandler) get(ctx *fiber.Ctx) error {
 }
 
 // create: POST /v1/comments
-// С тело запроса валидируется через DTO (request.CreateComment)
+// @Summary     Create comment
+// @Description Create a new comment for an entity
+// @Tags        comment
+// @Accept      json
+// @Produce     json
+// @Param       request body request.CreateComment true "Comment payload"
+// @Success     201 {object} entity.Comment
+// @Failure     400 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /comments [post]
 func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 	var body request.CreateComment
 	if err := ctx.BodyParser(&body); err != nil {
@@ -109,7 +139,19 @@ func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 }
 
 // update: PUT /v1/comments/:id
-// Хендлер парсит id и тело, валидация и вызов usecase.UpdateComment
+// @Summary     Update comment
+// @Description Update an existing comment (author only)
+// @Tags        comment
+// @Accept      json
+// @Produce     json
+// @Param       id path int true "Comment ID"
+// @Param       request body request.UpdateComment true "Updated comment payload"
+// @Success     200 {string} string "OK"
+// @Failure     400 {object} response.Error
+// @Failure     403 {object} response.Error
+// @Failure     404 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /comments/{id} [put]
 func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -138,6 +180,18 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 }
 
 // delete: DELETE /v1/comments/:id
+// @Summary     Delete comment
+// @Description Delete a comment by ID (author only)
+// @Tags        comment
+// @Accept      json
+// @Produce     json
+// @Param       id path int true "Comment ID"
+// @Success     204 {string} string "No Content"
+// @Failure     400 {object} response.Error
+// @Failure     403 {object} response.Error
+// @Failure     404 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /comments/{id} [delete]
 func (h *CommentHandler) delete(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
