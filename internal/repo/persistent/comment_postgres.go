@@ -99,17 +99,21 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		limit = maxLimit
 	}
 
-	// Проверка на возможное переполнение перед преобразованием
-	limit64 := uint64(limit)
+	// С limit ≤ 100, для переполнения int64 потребуется page > 9.22e16
+	// Это нереально большая страница, но на всякий случай проверим
+	var offset uint64
+	if page > 1 {
+		// Максимальное значение page, которое не вызовет переполнение int64
+		// при умножении на limit (max 100)
+		maxSafePage := math.MaxInt64/limit + 1
+		if page > maxSafePage {
+			// Слишком большая страница - возвращаем пустой результат
+			return []*entity.Comment{}, nil
+		}
 
-	// Вычисляем offset с проверкой на переполнение
-	if page > math.MaxInt64/limit+1 {
-		// Если page настолько большое, что вызовет переполнение,
-		// лучше вернуть пустой результат или ошибку
-		return []*entity.Comment{}, nil
+		// Теперь преобразование безопасно
+		offset = uint64((page - 1) * limit)
 	}
-
-	offset := uint64((page - 1) * limit)
 
 	// направление сортировки
 	dir := "DESC"
@@ -122,7 +126,7 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 		From("comments").
 		Where("entity_id = ?", entityID).
 		OrderBy(fmt.Sprintf("created_at %s", dir)).
-		Limit(limit64).
+		Limit(uint64(limit)).
 		Offset(offset).
 		ToSql()
 	if err != nil {
@@ -138,7 +142,6 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID int64,
 	comments := make([]*entity.Comment, 0, limit)
 	for rows.Next() {
 		c := &entity.Comment{}
-		// предполагаемые поля в entity.Comment: ID, EntityID, UserID, Text, CreatedAt, UpdatedAt
 		if err := rows.Scan(&c.ID, &c.EntityID, &c.UserID, &c.Text, &c.CreatedAt, &c.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("CommentRepo - ListCommentByEntity - rows.Scan: %w", err)
 		}
