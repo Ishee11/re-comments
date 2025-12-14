@@ -48,11 +48,15 @@ func (r *CommentRepo) CreateComment(ctx context.Context, c *entity.Comment) erro
 
 func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error) {
 	var comment entity.Comment
-	sql, args, err := r.Builder.
+	builder := r.Builder.
 		Select("id, entity_id, user_id, text, created_at").
 		From("comments").
-		Where("id = ?", id).
-		ToSql()
+		Where("id = ?", id)
+
+	sql, args, err := builder.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Builder: %w", err)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Builder: %w", err)
 	}
@@ -63,6 +67,7 @@ func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Com
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil // можно маппить в 404 в usecase/handler
 		}
+
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - row.Scan: %w", err)
 	}
 
@@ -92,6 +97,7 @@ func safeInt64ToUint64(value int64) (uint64, error) {
 	if value < 0 {
 		return 0, fmt.Errorf("%w: %d", ErrNegativeValue, value)
 	}
+
 	return uint64(value), nil
 }
 
@@ -137,6 +143,7 @@ func sortDirection(sortAsc bool) string {
 	if sortAsc {
 		return "ASC"
 	}
+
 	return "DESC"
 }
 
@@ -149,14 +156,15 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID, page, l
 
 	dir := sortDirection(sortAsc)
 
-	sql, args, err := r.Builder.
+	builder := r.Builder.
 		Select("id", "entity_id", "user_id", "text", "created_at", "updated_at").
 		From("comments").
 		Where("entity_id = ?", entityID).
 		OrderBy(fmt.Sprintf("created_at %s", dir)).
 		Limit(limit64).
-		Offset(offset64).
-		ToSql()
+		Offset(offset64)
+
+	sql, args, err := builder.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - ListCommentByEntity - r.Builder: %w", err)
 	}
@@ -165,6 +173,7 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID, page, l
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - ListCommentByEntity - r.Pool.Query: %w", err)
 	}
+
 	defer rows.Close()
 
 	comments := make([]*entity.Comment, 0, limit)

@@ -28,7 +28,7 @@ func TestUseCase_CreateComment(t *testing.T) {
 	t.Parallel()
 
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	t.Cleanup(func() { ctrl.Finish() })
 
 	repo := usecase_test.NewMockCommentRepository(ctrl)
 	useCase := commentUseCase(repo)
@@ -42,6 +42,7 @@ func TestUseCase_CreateComment(t *testing.T) {
 					Return(nil)
 			},
 			want: func(t *testing.T, got *entity.Comment, err error) {
+				t.Helper()
 				require.NoError(t, err)
 				require.NotNil(t, got)
 				require.Equal(t, int64(1), got.UserID)
@@ -57,6 +58,7 @@ func TestUseCase_CreateComment(t *testing.T) {
 					Return(errInternalServErr)
 			},
 			want: func(t *testing.T, got *entity.Comment, err error) {
+				t.Helper()
 				require.ErrorIs(t, err, errInternalServErr)
 				require.Nil(t, got)
 			},
@@ -65,6 +67,7 @@ func TestUseCase_CreateComment(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			tc.mock()
 			got, err := useCase.CreateComment(context.Background(), 1, 1, "test")
 			tc.want(t, got, err)
@@ -73,9 +76,13 @@ func TestUseCase_CreateComment(t *testing.T) {
 }
 
 func runUpdateCommentTest(t *testing.T, name string, mock func(), want func(t *testing.T, err error)) {
+	t.Helper() // сразу вызываем, это хелпер
+
 	t.Run(name, func(t *testing.T) {
+		t.Parallel() // под-тесты будут выполняться параллельно
+
 		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
+		t.Cleanup(func() { ctrl.Finish() }) // безопасно для параллельных тестов
 
 		repo := usecase_test.NewMockCommentRepository(ctrl)
 		useCase := commentUseCase(repo)
@@ -103,6 +110,7 @@ func TestUseCase_UpdateComment(t *testing.T) {
 				repo.EXPECT().UpdateComment(gomock.AssignableToTypeOf(&entity.Comment{})).Return(nil)
 			},
 			want: func(t *testing.T, err error) {
+				t.Helper()
 				require.NoError(t, err)
 			},
 		},

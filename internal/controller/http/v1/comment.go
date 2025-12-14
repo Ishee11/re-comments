@@ -217,6 +217,7 @@ func (h *CommentHandler) delete(ctx *fiber.Ctx) error {
 		// В данном примере предполагается, что usecase имеет отдельный метод DeleteComment.
 		// Если у тебя есть DeleteComment, используй его. Здесь показан placeholder.
 		h.L.Error(err, "http - v1 - comment delete")
+
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot delete comment")
 	}
 
