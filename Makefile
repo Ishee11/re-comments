@@ -2,7 +2,7 @@ include .env.example
 export
 
 LOCAL_BIN:=$(CURDIR)/bin
-BASE_STACK = docker-compose -f docker-compose.yml
+BASE_STACK = docker compose -f docker-compose.yml
 INTEGRATION_TEST_STACK = $(BASE_STACK) -f docker-compose-integration-test.yml
 ALL_STACK = $(INTEGRATION_TEST_STACK)
 
