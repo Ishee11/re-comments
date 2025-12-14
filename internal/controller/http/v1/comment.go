@@ -173,16 +173,19 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 	var body request.UpdateComment
 	if err := ctx.BodyParser(&body); err != nil {
 		h.L.Error(err, "http - v1 - comment update: parse")
+
 		return errorResponse(ctx, http.StatusBadRequest, "invalid body")
 	}
 	if err := h.V.Struct(body); err != nil {
 		h.L.Error(err, "http - v1 - comment update: validation")
+
 		return errorResponse(ctx, http.StatusBadRequest, "invalid body")
 	}
 
 	// В usecase реализованы проверки авторства и прочие бизнес-правила
 	if err := h.U.UpdateComment(ctx.UserContext(), id, body.UserID, body.Text); err != nil {
 		h.L.Error(err, "http - v1 - comment update")
+
 		// можно маппить бизнес-ошибки в http статусы (например ErrNotFound -> 404, ErrForbidden -> 403)
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot update comment")
 	}
