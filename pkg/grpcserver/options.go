@@ -8,8 +8,6 @@ import (
 type Option func(*Server)
 
 // Port -.
-//
-//nolint:unused
 func Port(port string) Option {
 	return func(s *Server) {
 		s.address = net.JoinHostPort("", port)
