@@ -129,10 +129,12 @@ func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 	var body request.CreateComment
 	if err := ctx.BodyParser(&body); err != nil {
 		h.L.Error(err, "http - v1 - comment create: parse")
+
 		return errorResponse(ctx, http.StatusBadRequest, "invalid body")
 	}
 	if err := h.V.Struct(body); err != nil {
 		h.L.Error(err, "http - v1 - comment create: validation")
+
 		return errorResponse(ctx, http.StatusBadRequest, "invalid body")
 	}
 
@@ -140,6 +142,7 @@ func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 	created, err := h.U.CreateComment(ctx.UserContext(), body.UserID, body.EntityID, body.Text)
 	if err != nil {
 		h.L.Error(err, "http - v1 - comment create")
+
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot create comment")
 	}
 
