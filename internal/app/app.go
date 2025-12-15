@@ -53,7 +53,7 @@ func Run(cfg *config.Config) {
 	httpServer := httpserver.New(httpserver.Port(cfg.HTTP.Port), httpserver.Prefork(cfg.HTTP.UsePreforkMode))
 	http.NewRouter(httpServer.App, cfg, useCase, l)
 
-	// gRPC Server
+	/*// gRPC Server
 	grpcServer := grpc.NewServer()
 
 	pb.RegisterTranslationServer(
@@ -70,7 +70,7 @@ func Run(cfg *config.Config) {
 		if err := grpcServer.Serve(lis); err != nil {
 			l.Error(err)
 		}
-	}()
+	}()*/
 
 	// Start servers
 	rmqServer.Start()
@@ -100,6 +100,6 @@ func Run(cfg *config.Config) {
 		l.Error(fmt.Errorf("app - Run - rmqServer.Shutdown: %w", err))
 	}
 
-	l.Info("app - Run - shutting down gRPC server")
-	grpcServer.GracefulStop()
+	/*l.Info("app - Run - shutting down gRPC server")
+	grpcServer.GracefulStop()*/
 }

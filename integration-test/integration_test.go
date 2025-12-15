@@ -11,11 +11,8 @@ import (
 	"testing"
 	"time"
 
-	protov1 "github.com/evrone/go-clean-template/docs/proto/v1"
 	"github.com/evrone/go-clean-template/pkg/rabbitmq/rmq_rpc/client"
 	"github.com/goccy/go-json"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -209,7 +206,7 @@ func TestHTTPHistoryV1(t *testing.T) {
 	}
 }
 
-// gRPC Client V1: GetHistory.
+/*// gRPC Client V1: GetHistory.
 func TestClientGRPCV1(t *testing.T) {
 	grpcConn, err := grpc.NewClient(grpcURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -239,7 +236,7 @@ func TestClientGRPCV1(t *testing.T) {
 			t.Fatalf("Original mismatch: expected %q, got %q", expectedOriginal, history.History[0].Original)
 		}
 	}
-}
+}*/
 
 // RabbitMQ RPC Client V1: getHistory.
 func TestClientRMQRPCV1(t *testing.T) {
