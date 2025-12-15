@@ -9,8 +9,6 @@ import (
 )
 
 // NewRouter -.
-//
-//nolint:unused
 func NewRouter(app *pbgrpc.Server, t usecase.Translation, l logger.Interface) {
 	{
 		v1.NewTranslationRoutes(app, t, l)

@@ -97,6 +97,7 @@ func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 func (h *CommentHandler) get(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
+
 	if err != nil || id <= 0 {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid id")
 	}
@@ -107,6 +108,7 @@ func (h *CommentHandler) get(ctx *fiber.Ctx) error {
 
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot fetch comment")
 	}
+
 	if c == nil {
 		return errorResponse(ctx, http.StatusNotFound, "comment not found")
 	}
@@ -132,6 +134,7 @@ func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 
 		return errorResponse(ctx, http.StatusBadRequest, "invalid body")
 	}
+
 	if err := h.V.Struct(body); err != nil {
 		h.L.Error(err, "http - v1 - comment create: validation")
 
@@ -166,6 +169,7 @@ func (h *CommentHandler) create(ctx *fiber.Ctx) error {
 func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
+
 	if err != nil || id <= 0 {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid id")
 	}
@@ -176,6 +180,7 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 
 		return errorResponse(ctx, http.StatusBadRequest, "invalid body")
 	}
+
 	if err := h.V.Struct(body); err != nil {
 		h.L.Error(err, "http - v1 - comment update: validation")
 

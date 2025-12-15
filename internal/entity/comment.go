@@ -40,10 +40,13 @@ func (c *Comment) UpdateComment(userID int64, text string) error {
 	if userID != c.UserID {
 		return ErrNotAuthor
 	}
+
 	text = strings.TrimSpace(text)
+
 	if text == "" {
 		return ErrEmptyCommentText
 	}
+
 	c.Text = text
 	c.UpdatedAt = time.Now().UTC()
 
