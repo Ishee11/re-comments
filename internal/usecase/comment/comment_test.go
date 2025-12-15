@@ -69,6 +69,7 @@ func TestUseCase_CreateComment(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			tc.mock()
+
 			got, err := useCase.CreateComment(context.Background(), 1, 1, "test")
 			tc.want(t, got, err)
 		})
@@ -88,6 +89,7 @@ func runUpdateCommentTest(t *testing.T, name string, mock func(), want func(t *t
 		useCase := commentUseCase(repo)
 
 		mock()
+
 		err := useCase.UpdateComment(context.Background(), 1, 1, "new text")
 		want(t, err)
 	})

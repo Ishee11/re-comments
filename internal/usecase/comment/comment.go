@@ -39,6 +39,7 @@ func (uc *UseCase) CreateComment(ctx context.Context, userID, entityID int64, te
 	if err != nil {
 		return nil, fmt.Errorf("CommentUseCase - CreateComment - entity.NewComment: %w", err)
 	}
+
 	if err = uc.commentRepo.CreateComment(ctx, c); err != nil {
 		return nil, fmt.Errorf("CommentUseCase - CreateComment - uc.repo.CreateComment: %w", err)
 	}
@@ -55,6 +56,7 @@ func (uc *UseCase) UpdateComment(ctx context.Context, id, userID int64, text str
 	if err != nil {
 		return fmt.Errorf("CommentUseCase - UpdateComment - uc.repo.GetCommentByID: %w", err)
 	}
+
 	if err = c.UpdateComment(userID, text); err != nil {
 		return fmt.Errorf("CommentUseCase - UpdateCommentText - c.UpdateCommentText: %w", err)
 	}

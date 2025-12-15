@@ -48,6 +48,7 @@ func (r *CommentRepo) CreateComment(ctx context.Context, c *entity.Comment) erro
 
 func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Comment, error) {
 	var comment entity.Comment
+
 	builder := r.Builder.
 		Select("id, entity_id, user_id, text, created_at").
 		From("comments").
@@ -57,11 +58,13 @@ func (r *CommentRepo) GetCommentByID(ctx context.Context, id int64) (*entity.Com
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Builder: %w", err)
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("CommentRepo - GetCommentByID - r.Builder: %w", err)
 	}
 
 	row := r.Pool.QueryRow(ctx, sql, args...)
+
 	err = row.Scan(&comment.ID, &comment.EntityID, &comment.UserID, &comment.Text, &comment.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -111,9 +114,11 @@ func sanitizePagination(page, limit int64) (limit64, offset64 uint64, err error)
 	if page < 1 {
 		page = 1
 	}
+
 	if limit <= 0 {
 		limit = defaultLimit
 	}
+
 	if limit > maxLimit {
 		limit = maxLimit
 	}
@@ -177,11 +182,13 @@ func (r *CommentRepo) ListCommentByEntity(ctx context.Context, entityID, page, l
 	defer rows.Close()
 
 	comments := make([]*entity.Comment, 0, limit)
+
 	for rows.Next() {
 		c := &entity.Comment{}
 		if err := rows.Scan(&c.ID, &c.EntityID, &c.UserID, &c.Text, &c.CreatedAt, &c.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("CommentRepo - ListCommentByEntity - rows.Scan: %w", err)
 		}
+
 		comments = append(comments, c)
 	}
 

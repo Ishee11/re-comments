@@ -67,6 +67,7 @@ func TestHTTPCreateComment(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
 			url := basePathV1 + "/comments"
+
 			ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 			defer cancel()
 
@@ -107,6 +108,7 @@ func TestHTTPGetComment(t *testing.T) {
 		EntityID int    `json:"entity_id"`
 		Text     string `json:"text"`
 	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&comment); err != nil {
 		t.Fatalf("Failed to decode response body: %v", err)
 	}

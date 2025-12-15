@@ -58,9 +58,11 @@ func (h *CommentHandler) list(ctx *fiber.Ctx) error {
 	if req.Page == 0 {
 		req.Page = 1
 	}
+
 	if req.Limit == 0 {
 		req.Limit = 20
 	}
+
 	if req.Sort == "" {
 		req.Sort = "desc"
 	}
@@ -213,6 +215,7 @@ func (h *CommentHandler) update(ctx *fiber.Ctx) error {
 // @Router      /comments/{id} [delete]
 func (h *CommentHandler) delete(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
+
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid id")
